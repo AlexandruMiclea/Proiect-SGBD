@@ -1,0 +1,11 @@
+-- persistent
+
+docker run -d -p 1521:1521 -e ORACLE_PASSWORD=FMIadmin -v oracle-volume:/u01/app/oracle/oradata gvenzl/oracle-xe:11 
+
+-- nepersistent
+
+docker run --name DBMSAux -d -p 1521:1521 -e ORACLE_PASSWORD=FMIadmin gvenzl/oracle-xe
+
+docker exec <id> createAppUser ALEXMICLEA FMIuser
+
+docker exec fab3b655c6102cf6df2809d25f4741d5aef2a1d45a1f56471cbdfa111afaf6e8 createAppUser ALEXMICLEA FMIuser
