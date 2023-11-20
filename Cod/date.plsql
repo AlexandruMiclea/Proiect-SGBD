@@ -292,47 +292,89 @@ insert into tema (idtema, idcapitol, descriere, enunt) values (7, 5, null, 'Film
 insert into tema (idtema, idcapitol, descriere, enunt) values (8, 7, null, 'Canta o melodie preferata din stilul grunge');
 select * from tema;
 
-create table student_rezolva_tema (
-    idstudent int,
-    idtema int,
-    nota number(4,2),
-    constraint pk_srtema primary key(idstudent, idtema),
-    constraint fk_srtema_student foreign key(idstudent) references student(idstudent) on delete cascade,
-    constraint fk_srtema_tema foreign key(idtema) references tema(idtema) on delete cascade
-);
+insert into student_noteaza_curs (idstudent, idcurs) values (1, 1);
+insert into student_noteaza_curs (idstudent, idcurs) values (2, 2);
+insert into student_noteaza_curs (idstudent, idcurs) values (3, 3);
+insert into student_noteaza_curs (idstudent, idcurs) values (5, 1);
+insert into student_noteaza_curs (idstudent, idcurs) values (6, 3);
+insert into student_noteaza_curs (idstudent, idcurs) values (7, 4);
+insert into student_noteaza_curs (idstudent, idcurs, nota) values (1, 4, 8.00);
+insert into student_noteaza_curs (idstudent, idcurs, nota) values (3, 5, 9.00);
+insert into student_noteaza_curs (idstudent, idcurs, nota) values (5, 2, 10.00);
+insert into student_noteaza_curs (idstudent, idcurs, nota) values (6, 4, 7.50);
+insert into student_noteaza_curs (idstudent, idcurs, nota) values (7, 5, 3.00);
+select * from student_noteaza_curs;
 
-create table student_rezolva_test (
-    idstudent int,
-    idtest int,
-    nota number(4,2),
-    constraint pk_srtest primary key(idstudent, idtest),
-    constraint fk_srtest_student foreign key(idstudent) references student(idstudent) on delete cascade,
-    constraint fk_srtest_test foreign key(idtest) references test(idtest) on delete cascade
-);
+insert into student_doreste_curs (idstudent, idcurs) values (4, 1);
+insert into student_doreste_curs (idstudent, idcurs) values (4, 2);
+insert into student_doreste_curs (idstudent, idcurs) values (4, 3);
+insert into student_doreste_curs (idstudent, idcurs) values (1, 3);
+insert into student_doreste_curs (idstudent, idcurs) values (3, 4);
+insert into student_doreste_curs (idstudent, idcurs) values (5, 5);
+insert into student_doreste_curs (idstudent, idcurs) values (6, 1);
+insert into student_doreste_curs (idstudent, idcurs) values (6, 2);
+insert into student_doreste_curs (idstudent, idcurs) values (7, 1);
+insert into student_doreste_curs (idstudent, idcurs) values (7, 2);
+select * from student_doreste_curs;
 
-create table student_doreste_curs (
-    idstudent int,
-    idcurs int,
-    dataadaugare date DEFAULT to_date(sysdate, 'DD-MM-YYYY'),
-    constraint pk_sdc primary key(idstudent, idcurs),
-    constraint fk_sdc_student foreign key(idstudent) references student(idstudent) on delete cascade,
-    constraint fk_sdc_curs foreign key(idcurs) references curs(idcurs) on delete cascade
-);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (1, 1, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (1, 2, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (1, 6, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (2, 3, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (2, 4, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (3, 5, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (3, 7, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (5, 1, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (5, 2, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (5, 3, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (5, 4, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (6, 5, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (6, 6, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (7, 6, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (7, 7, 1);
+select * from student_parcurge_capitol;
 
-create table student_noteaza_curs (
-    idstudent int,
-    idcurs int,
-    nota number(4,2),
-    constraint pk_snc primary key(idstudent, idcurs),
-    constraint fk_snc_student foreign key(idstudent) references student(idstudent) on delete cascade,
-    constraint fk_snc_curs foreign key(idcurs) references curs(idcurs) on delete cascade
-);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (1, 1, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (1, 2, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (1, 3, 10.00);
+insert into student_rezolva_tema (idstudent, idtema) values (1, 4);
+insert into student_rezolva_tema (idstudent, idtema) values (1, 5);
+insert into student_rezolva_tema (idstudent, idtema) values (1, 6);
+insert into student_rezolva_tema (idstudent, idtema) values (3, 7);
+insert into student_rezolva_tema (idstudent, idtema) values (3, 8);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (5, 1, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (5, 2, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (5, 3, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (5, 4, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (5, 5, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (5, 6, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (6, 5, 9.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (7, 8, 8.00);
+select * from student_rezolva_tema;
 
-create table student_parcurge_capitol (
-    idstudent int,
-    idcapitol int,
-    efectuat number default 0 constraint nn_efectuat_spc not null,
-    constraint pk_spc primary key(idstudent, idcapitol),
-    constraint fk_spc_student foreign key(idstudent) references student(idstudent) on delete cascade,
-    constraint fk_spc_capitol foreign key(idcapitol) references capitol(idcapitol) on delete cascade
-);
+insert into student_rezolva_test (idstudent, idtest, nota) values (1, 1, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (1, 2, 9.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (1, 3, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (1, 7, 7.00);
+insert into student_rezolva_test (idstudent, idtest) values (1, 8);
+insert into student_rezolva_test (idstudent, idtest) values (1, 9);
+insert into student_rezolva_test (idstudent, idtest) values (1, 10);
+insert into student_rezolva_test (idstudent, idtest) values (2, 4);
+insert into student_rezolva_test (idstudent, idtest) values (3, 6);
+insert into student_rezolva_test (idstudent, idtest) values (3, 11);
+insert into student_rezolva_test (idstudent, idtest, nota) values (5, 1, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (5, 2, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (5, 3, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (5, 4, 10.00);
+insert into student_rezolva_test (idstudent, idtest) values (5, 5);
+insert into student_rezolva_test (idstudent, idtest, nota) values (6, 6, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (6, 7, 6.00);
+insert into student_rezolva_test (idstudent, idtest) values (6, 8);
+insert into student_rezolva_test (idstudent, idtest) values (6, 9);
+insert into student_rezolva_test (idstudent, idtest) values (6, 10);
+insert into student_rezolva_test (idstudent, idtest, nota) values (7, 7, 9.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (7, 8, 8.50);
+insert into student_rezolva_test (idstudent, idtest, nota) values (7, 9, 9.40);
+insert into student_rezolva_test (idstudent, idtest, nota) values (7, 10, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (7, 11, 10.00);
+select * from student_rezolva_test;
