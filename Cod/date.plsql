@@ -155,7 +155,7 @@ create table student_parcurge_capitol (
 
 insert into student (idstudent, nume, prenume, email, datacreare) values (1, 'Chirila', 'Alexandru Matei', 'chirilaalexandrumatei@outlook.com', sysdate - 30);
 insert into student (idstudent, nume, prenume, email, datacreare) values (2, 'Costiniu', 'Gabriel', 'costiniugabriel@gmail.com', sysdate - 20);
-insert into student (idstudent, nume, prenume, email, datacreare) values (3, 'Timandi', 'Livia Andreea', 'timandiliviaandreea@hotmail.com', sysdate - 150);
+insert into student (idstudent, nume, prenume, email, datacreare) values (3, 'Timandi', 'Karina', 'timandiliviaandreea@hotmail.com', sysdate - 150);
 insert into student (idstudent, nume, prenume, email, datacreare) values (4, 'Stinga', 'Madalina', 'stingamadalina@gmail.com', sysdate - 10);
 insert into student (idstudent, nume, prenume, email, datacreare) values (5, 'Balitiu', 'Teodora', 'balitiuteodora@outlook.com', sysdate - 360);
 insert into student (idstudent, nume, prenume, email, datacreare) values (6, 'Stanasila', 'Ovidiu', 'stanasilaovidiu@protonmail.com', sysdate - 90);
@@ -171,7 +171,7 @@ select * from curs;
 
 insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (1, 1, 'CHIRILA ALEXANDRU MATEI', 374245455400126, to_date('01/05/2026', 'DD/MM/YYYY'), 123);
 insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (2, 2, 'COSTINIU GABRIEL', 378282246310005, to_date('01/05/2026', 'DD/MM/YYYY'), 423);
-insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (3, 3, 'TIMANDI LIVIA ANDREEA', 6250941006528599, to_date('01/06/2026', 'DD/MM/YYYY'), 434);
+insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (3, 3, 'TIMANDI KARINA', 6250941006528599, to_date('01/06/2026', 'DD/MM/YYYY'), 434);
 insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (4, 3, 'TIMANDI CRISTIAN', 6011000180331112, to_date('01/02/2026', 'DD/MM/YYYY'), 543);
 insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (5, 4, 'STINGA MADALINA', 6011000991300009, to_date('01/12/2026', 'DD/MM/YYYY'), 564);
 insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (6, 5, 'BALITIU TEODORA', 3566000020000410, to_date('01/02/2026', 'DD/MM/YYYY'), 954);
