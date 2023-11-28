@@ -1,6 +1,12 @@
+exec dbms_output.enable(NULL);
+
+
 -- exercitiul 6
--- pentru un student al carui ID se da de la tastatura sa se afiseze cursurile pe care so le-a cumparat
--- pentru fiecare curs cumparat sa se enumere intrebarile din testele aferente fiecarui capitol al cursului
+-- pentru un student al carui ID se da de la tastatura sa se afiseze cursurile pe care le-a cumparat
+-- pentru fiecare curs cumparat sa se enumere intrebarile din testele aferente fiecarui capitol al cursului, cat
+-- si raspunsurile corecte
+
+
 CREATE OR REPLACE PROCEDURE afisare_cursuri (v_id student.idstudent%type) as
     TYPE date_curs IS RECORD (id curs.idcurs%type, nume curs.nume%type);
     TYPE date_intrebare IS RECORD (enunt intrebare.enunt%type, raspuns intrebare.raspunscorect%type);
@@ -59,6 +65,48 @@ BEGIN
 END;
 /
 
---select * from intrebare;
+-- exercitiul 7
+-- pentru fiecare student, sa se afiseze cardurile pe care si le-a inregistrat, si ce cursuri a cumparat cu fiecare
 
---select * from capitol;
+SET SERVERoutput on format wrapped;
+CREATE OR REPLACE PROCEDURE afisare_cumparaturi as
+    id_s student.idstudent%type;
+    nume_s student.nume%type;
+    nume_c curs.nume%type;
+    pret_c curs.pret%type;
+    -- cursor explicit
+    cursor studenti is 
+        select idstudent, nume || ' ' || prenume
+        from student;
+
+    cursor cursuri (id_c card.idcard%type) IS
+        select idcurs from CARD_CUMPARA_CURS where idcard = id_c;
+BEGIN
+    open studenti;
+    loop
+        fetch studenti into id_s, nume_s;
+        exit when studenti%notfound;
+        dbms_output.put_line('   Student ' || nume_s || ', id ' || id_s);
+
+        -- cursor implicit
+        for i in (select idcard, detinator from card where idstudent = id_s) LOOP
+            DBMS_OUTPUT.PUT_LINE(i.detinator || ' ' || i.idcard);
+            for j in cursuri(i.idcard) LOOP
+                select nume, pret into nume_c, pret_c
+                from curs where idcurs = j.idcurs;
+                DBMS_OUTput.PUT_LINE('Cursul ' || nume_c || ', care costa ' || pret_c || ' lei.');
+            end loop;
+
+        end loop;
+
+    end loop;
+
+END afisare_cumparaturi;
+/
+BEGIN
+    afisare_cumparaturi();
+END;
+/
+
+select * from card;
+select * from CURS;
