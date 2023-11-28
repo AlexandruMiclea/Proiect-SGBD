@@ -26,7 +26,7 @@ CREATE OR REPLACE PROCEDURE afisare_cursuri (v_id student.idstudent%type) as
 BEGIN
     -- cursurile detinute de studentul dat ca parametru
     select nume || ' ' || prenume, datacreare into nume_s, datacreare_s from student where idstudent = v_id;
-    DBMS_OUTPUT.PUT_LINE('Studentul ' || nume_s || ', care s-a intregistrat la data de ' || datacreare_s ||  'a cumparat urmatoarele cursuri: ');
+    DBMS_OUTPUT.PUT_LINE('Studentul ' || nume_s || ', care s-a intregistrat la data de ' || datacreare_s ||  ' a cumparat urmatoarele cursuri: ');
     select cu.idcurs, cu.nume bulk COLLECT INTO nume_curs
     from card ca, CARD_CUMPARA_CURS ccc, curs cu
     where v_id = ca.IDSTUDENT and ccc.IDCARD = ca.IDCARD and cu.IDCURS = ccc.IDCURS;
@@ -115,10 +115,47 @@ END;
 /
 
 
--- exercitiul 8
+-- exercitiul 8 -- TODO add exceptions
 -- pentru un instructor al carui nume se da la tastatura sa se afiseze cate copii ale tuturor cursurilor pe care le preda au fost cumparate?
 
-CREATE OR REPLACE FUNCTION numar_clienti (nume_instr instructor.nume%type) RETURN number AS
+select count(*)
+from instructor i, instructor_preda_curs ipc, card_cumpara_curs ccc
+where i.nume = 'Blidariu' and i.idinstructor = ipc.idinstructor and ipc.idcurs = ccc.idcurs;
+
+CREATE OR REPLACE FUNCTION numar_clienti (nume_instr instructor.nume%type) RETURN int AS
+    ret_nrcl int;
+    v_idinst int;
+    type t_cursuri is table of int;
+    v_cursuri t_cursuri;
 BEGIN
+
+    select idinstructor into v_idinst
+    from instructor
+    where nume = nume_instr;
+    
+    select idcurs bulk collect into v_cursuri
+    from instructor_preda_curs
+    where idinstructor = v_idinst;
+    
+    for i in v_cursuri.first..v_cursuri.last loop
+        
+        select count(*) into ret_nrcl
+        from card_cumpara_curs
+        where idcurs = v_cursuri(i);
+    
+        --dbms_output.put_line(v_cursuri(i));
+    end loop;
+    
+    return ret_nrcl;
 END numar_clienti;
 /
+
+BEGIN
+    dbms_output.put_line(numar_clienti('Stoenescu'));
+END;
+/
+
+-- exercitiul 9
+-- sa se creeze o procedura care, pentru fiecare student, afiseaza progresul acestuia la cursurile la care este inrolat
+-- mai exact, pentru fiecare capitol efectuat, sa se afiseze daca studentul si-a facut testele si temele, in cazul in care acestea exista,
+-- si nota pe care acesta a obtinut-o.
