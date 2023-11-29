@@ -120,38 +120,36 @@ END;
 
 select count(*)
 from instructor i, instructor_preda_curs ipc, card_cumpara_curs ccc
-where i.nume = 'Blidariu' and i.idinstructor = ipc.idinstructor and ipc.idcurs = ccc.idcurs;
+where i.nume = 'Stoenescu' and i.idinstructor = ipc.idinstructor and ipc.idcurs = ccc.idcurs;
 
 CREATE OR REPLACE FUNCTION numar_clienti (nume_instr instructor.nume%type) RETURN int AS
     ret_nrcl int;
+    v_nrinst int;
     v_idinst int;
-    type t_cursuri is table of int;
-    v_cursuri t_cursuri;
+    
+    nu_exista_instructor EXCEPTION;
+    PRAGMA EXCEPTION_INIT (nu_exista_instructor, -20000);
+    mai_multi_instructori EXCEPTION;
+    PRAGMA EXCEPTION_INIT (mai_multi_instructori, -20001);
 BEGIN
 
-    select idinstructor into v_idinst
-    from instructor
-    where nume = nume_instr;
+    select count(*) into v_nrinst from instructor where nume = nume_instr;
+    if v_nrinst > 1 then
+        raise_application_error(-20000, 'Sunt mai multi instructori cu numele dat!');
+    elsif v_nrinst < 1 then
+        raise_application_error(-20001, 'Nu exista instructori cu numele dat!');
+    end if;
     
-    select idcurs bulk collect into v_cursuri
-    from instructor_preda_curs
-    where idinstructor = v_idinst;
-    
-    for i in v_cursuri.first..v_cursuri.last loop
-        
-        select count(*) into ret_nrcl
-        from card_cumpara_curs
-        where idcurs = v_cursuri(i);
-    
-        --dbms_output.put_line(v_cursuri(i));
-    end loop;
+    select count(*) into ret_nrcl
+    from instructor i, instructor_preda_curs ipc, card_cumpara_curs ccc
+    where i.nume = nume_instr and i.idinstructor = ipc.idinstructor and ipc.idcurs = ccc.idcurs;
     
     return ret_nrcl;
 END numar_clienti;
 /
 
 BEGIN
-    dbms_output.put_line(numar_clienti('Stoenescu'));
+    dbms_output.put_line(numar_clienti('Blidariu'));
 END;
 /
 
@@ -159,3 +157,33 @@ END;
 -- sa se creeze o procedura care, pentru fiecare student, afiseaza progresul acestuia la cursurile la care este inrolat
 -- mai exact, pentru fiecare capitol efectuat, sa se afiseze daca studentul si-a facut testele si temele, in cazul in care acestea exista,
 -- si nota pe care acesta a obtinut-o.
+CREATE OR REPLACE PROCEDURE progres_studenti AS
+    ret_nrcl int;
+    v_nrinst int;
+    v_idinst int;
+    
+    nu_exista_instructor EXCEPTION;
+    PRAGMA EXCEPTION_INIT (nu_exista_instructor, -20000);
+    mai_multi_instructori EXCEPTION;
+    PRAGMA EXCEPTION_INIT (mai_multi_instructori, -20001);
+BEGIN
+
+    select count(*) into v_nrinst from instructor where nume = nume_instr;
+    if v_nrinst > 1 then
+        raise_application_error(-20000, 'Sunt mai multi instructori cu numele dat!');
+    elsif v_nrinst < 1 then
+        raise_application_error(-20001, 'Nu exista instructori cu numele dat!');
+    end if;
+    
+    select count(*) into ret_nrcl
+    from instructor i, instructor_preda_curs ipc, card_cumpara_curs ccc
+    where i.nume = nume_instr and i.idinstructor = ipc.idinstructor and ipc.idcurs = ccc.idcurs;
+    
+    return ret_nrcl;
+END progres_studenti;
+/
+
+BEGIN
+    dbms_output.put_line(numar_clienti('Blidariu'));
+END;
+/
