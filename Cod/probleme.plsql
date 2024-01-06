@@ -109,10 +109,9 @@ BEGIN
 END;
 /
 
--- todo returneaza un record ca sa poti afisa fiecare curs si cati cumparatori ai
+
 -- pentru un instructor al carui nume se da la tastatura sa se afiseze cate copii ale tuturor cursurilor pe care
 -- le preda au fost cumparate, pentru fiecare curs
-
 
 CREATE OR REPLACE FUNCTION numar_clienti (nume_instr instructor.nume%type) RETURN number AS
     ret_nrvanzari number;
@@ -148,7 +147,6 @@ END numar_clienti;
 
 BEGIN
     dbms_output.put_line(numar_clienti('Blidariu'));
-    dbms_output.put_line(numar_clienti('Blidariu'));
     dbms_output.put_line(numar_clienti('Blidari'));
 END;
 /
@@ -158,12 +156,6 @@ END;
 -- la un curs al carui nume este dat. sa se verifice daca este inrolat la acel curs, iar pentru fiecare capitol al cursului
 -- sa se afiseze procentul de teme si teste pe care l-a facut
 
-
-
--- pentru too many rows / no rows am un parametru care e un subsir al capitolului cautat.
--- 'in' imi va intoarce too many rows, 'ceva' imi va intoarce no rows found
-
--- student student rezolva test & tema, student_parcurge_capitol, capitol
 CREATE OR REPLACE PROCEDURE medie_teste_capitol(p_numestudent student.nume%type, p_prenumestudent student.prenume%type, p_titlucapitol capitol.titlu%type) AS
     v_aux number;
     
@@ -240,15 +232,9 @@ BEGIN
 END;
 /
 
--- trigger lmd comanda
--- trigger lmd linie
--- trigger ldd
+-- 10. doar adminul bazei de date poate modifica, insera sau sterge un curs din baza de date
 
--- inserarea la nivel de linie -> for each row
-
--- 10. doar adminul bazei de date poate modifica, insera sau sterge un curs din baza de date -- TODO cauta ceva mai destept
-
-create or replace trigger t_
+create or replace trigger t_admincurs
     before insert or update or delete on curs
 declare
 begin
@@ -258,6 +244,8 @@ begin
     end if;
 end;
 /
+
+insert into curs (idcurs, nume, descriere, diploma, pret, limba) values (100, '100 days of code', 'Ia-o de la zero cu programarea in Python! Pe parcursul celor 100 de zile vei avea ceva de codat zilnic.', 1, 49.99, 'engleza');
 
 -- 11. Trigger care adauga linii in tabele asociative odata cu cumpararea unui curs 
 
@@ -328,10 +316,6 @@ select * from student_noteaza_curs;
 select * from student_rezolva_tema;
 select * from student_rezolva_test;
 
-delete from student where idstudent = 100;
-delete from card where idcard = 100;
-
-
 -- 12. tabela care tine minte modificari produse in tabela
 
 create table modificari (
@@ -342,11 +326,6 @@ create table modificari (
     dataefectuare date default sysdate
 );
 
-drop table modificari;
-drop trigger t_modificari;
-
-select * from modificari;
-
 create or replace trigger t_modificari
     after alter or create or drop on schema
 begin
@@ -354,3 +333,5 @@ begin
     values (sys.login_user, sys.database_name, sys.sysevent, sys.dictionary_obj_name);
 end;
 /
+
+select * from modificari;

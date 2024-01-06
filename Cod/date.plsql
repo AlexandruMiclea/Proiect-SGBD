@@ -221,8 +221,8 @@ insert into curs_are_subiect (idcurs, idsubiect) values (5, 7);
 select * from curs_are_subiect;
 
 create sequence seq_instructor start with 11 increment by 1;
-insert into instructor (idinstructor, nume, prenume, descriere) values (1, 'Blidariu', 'Mihnea', 'Mihnea Blidariu (n. 6 septembrie 1979, Bac?u, România) este un muzician român, membru al forma?iei rock Luna Amar?, din Cluj-Napoca. Interpreteaz? vocal, la trompet? ?i la chitar?.');
-insert into instructor (idinstructor, nume, prenume, descriere) values (2, 'Stallone', 'Sylvester', 'Sylvester Enzio Stallone (n. 6 iulie 1946, New York City, New York, SUA) este un actor, regizor ?i scenarist american.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (1, 'Blidariu', 'Mihnea', 'Mihnea Blidariu (n. 6 septembrie 1979, Bacau, Romania) este un muzician roman, membru al formatiei rock Luna Amara, din Cluj-Napoca. Interpreteaza vocal, la trompeta si la chitara.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (2, 'Stallone', 'Sylvester', 'Sylvester Enzio Stallone (n. 6 iulie 1946, New York City, New York, SUA) este un actor, regizor si scenarist american.');
 insert into instructor (idinstructor, nume, prenume, descriere) values (3, 'Yu', 'Angela', 'I am Angela, I am a developer with a passion for teaching. I am the lead instructor at the London App Brewery, a leading Programming Bootcamp.');
 insert into instructor (idinstructor, nume, prenume, descriere) values (4, 'Stoenescu', 'Constantin', 'Prof. Dr.');
 insert into instructor (idinstructor, nume, prenume, descriere) values (5, 'Brancoveanu', 'Romulus', 'Prof. Dr.');
@@ -230,7 +230,7 @@ insert into instructor (idinstructor, nume, prenume, descriere) values (6, 'Patr
 insert into instructor (idinstructor, nume, prenume, descriere) values (7, 'Cioaba', 'Catalin', 'Prof. Dr.');
 insert into instructor (idinstructor, nume, prenume, descriere) values (8, 'Malan', 'David', null);
 insert into instructor (idinstructor, nume, prenume, descriere) values (9, 'Botan', 'Andrei', null);
-insert into instructor (idinstructor, nume, prenume, descriere) values (10, 'Fagadar', 'Nick', 'Nick Fagadar este un muzician român, membru al forma?iei rock Luna Amar?, din Cluj-Napoca. Interpreteaz? vocal ?i la chitar?.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (10, 'Fagadar', 'Nick', 'Nick Fagadar este un muzician roman, membru al formatiei rock Luna Amara, din Cluj-Napoca. Interpreteaza vocal si la chitara.');
 select * from instructor;
 
 insert into instructor_preda_curs (idinstructor, idcurs) values (3, 1);

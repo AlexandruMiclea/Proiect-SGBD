@@ -1,0 +1,932 @@
+-- create tables
+
+create table Student (
+    idstudent int,
+    nume varchar2(40) constraint nn_nume_student not null,
+    prenume varchar2(40) constraint nn_prenume_student not null,
+    email varchar2(100) constraint nn_email_student not null,
+    datacreare date default to_date(sysdate, 'DD-MM-YYYY'),
+    constraint pk_student primary key(idstudent),
+    constraint uq_email_student unique(email)
+);
+
+create TABLE card (
+    idcard int,
+    idstudent int,
+    detinator varchar2(100) constraint nn_detinator_card not null,
+    numar number(16) constraint nn_numar_card not null,
+    dataexpirare date constraint nn_dataexpirare_card not null,
+    cif number(3) constraint nn_cif_card not null,
+    constraint pk_card primary key(idcard),
+    constraint fk_card_student foreign key(idstudent) references student(idstudent) on delete cascade,
+    constraint uq_numar_card unique(numar)
+);
+
+create table Curs (
+    idcurs int,
+    nume varchar2(100) constraint nn_nume_curs not null,
+    descriere varchar2(400),
+    diploma number default 0 constraint nn_diploma_curs not null,
+    pret number(5,2) constraint nn_pret_curs not null,
+    limba varchar2(20),
+    constraint pk_curs primary key(idcurs)
+);
+
+create table card_cumpara_curs (
+    idcard int,
+    idcurs int,
+    datacumparare date DEFAULT to_date(sysdate, 'DD-MM-YYYY'),
+    constraint pk_ccc primary key(idcard, idcurs),
+    constraint fk_ccc_card foreign key(idcard) references card(idcard) on delete cascade,
+    constraint fk_ccc_curs foreign key(idcurs) references curs(idcurs) on delete cascade
+);
+
+create table capitol (
+    idcapitol int,
+    idcurs int,
+    titlu varchar2(40) constraint nn_titlu_capitol not null,
+    descriere VARCHAR2(400),
+    lungime number(5,2) constraint nn_lungime_capitol not null,
+    constraint pk_capitol primary key(idcapitol),
+    constraint fk_capitol_curs foreign key(idcurs) references curs(idcurs) on delete cascade
+);
+
+create table test (
+    idtest int,
+    idcapitol int,
+    constraint pk_test primary key(idtest),
+    constraint fk_test_capitol foreign key(idcapitol) references capitol(idcapitol) on delete cascade
+);
+
+create table tema (
+    idtema int,
+    idcapitol int,
+    descriere VARCHAR2(400),
+    enunt VARCHAR2(400) constraint nn_enunt_tema not null,
+    constraint pk_tema primary key(idtema),
+    constraint fk_tema_capitol foreign key(idcapitol) references capitol(idcapitol) on delete cascade
+);
+
+create table subiect (
+    idsubiect int,
+    nume VARCHAR2(40) constraint nn_nume_subiect not null,
+    descriere VARCHAR2(400),
+    constraint pk_subiect primary key(idsubiect)
+);
+
+create table instructor (
+    idinstructor int,
+    nume varchar2(40) constraint nn_nume_instructor not null,
+    prenume varchar2(40) constraint nn_prenume_instructor not null,
+    descriere VARCHAR2(400),
+    constraint pk_instructor primary key(idinstructor)
+);
+
+create table intrebare (
+    idintrebare int,
+    idtest int,
+    enunt VARCHAR2(400) constraint nn_enunt_intrebare not null,
+    raspunscorect VARCHAR2(400) constraint nn_raspunscorect_tema not null,
+    constraint pk_intrebare primary key(idintrebare)
+);
+
+create table instructor_preda_curs (
+    idinstructor int,
+    idcurs int,
+    constraint pk_ipc primary key(idinstructor, idcurs),
+    constraint fk_ipc_instructor foreign key(idinstructor) references instructor(idinstructor) on delete cascade,
+    constraint fk_ipc_curs foreign key(idcurs) references curs(idcurs) on delete cascade
+);
+
+create table curs_are_subiect (
+    idcurs int,
+    idsubiect int,
+    constraint pk_cas primary key(idcurs, idsubiect),
+    constraint fk_cas_curs foreign key(idcurs) references curs(idcurs) on delete cascade,
+    constraint fk_cas_subiect foreign key(idsubiect) references subiect(idsubiect) on delete cascade
+);
+
+create table student_rezolva_tema (
+    idstudent int,
+    idtema int,
+    nota number(4,2),
+    constraint pk_srtema primary key(idstudent, idtema),
+    constraint fk_srtema_student foreign key(idstudent) references student(idstudent) on delete cascade,
+    constraint fk_srtema_tema foreign key(idtema) references tema(idtema) on delete cascade
+);
+
+create table student_rezolva_test (
+    idstudent int,
+    idtest int,
+    nota number(4,2),
+    constraint pk_srtest primary key(idstudent, idtest),
+    constraint fk_srtest_student foreign key(idstudent) references student(idstudent) on delete cascade,
+    constraint fk_srtest_test foreign key(idtest) references test(idtest) on delete cascade
+);
+
+create table student_doreste_curs (
+    idstudent int,
+    idcurs int,
+    dataadaugare date DEFAULT to_date(sysdate, 'DD-MM-YYYY'),
+    constraint pk_sdc primary key(idstudent, idcurs),
+    constraint fk_sdc_student foreign key(idstudent) references student(idstudent) on delete cascade,
+    constraint fk_sdc_curs foreign key(idcurs) references curs(idcurs) on delete cascade
+);
+
+create table student_noteaza_curs (
+    idstudent int,
+    idcurs int,
+    nota number(4,2),
+    constraint pk_snc primary key(idstudent, idcurs),
+    constraint fk_snc_student foreign key(idstudent) references student(idstudent) on delete cascade,
+    constraint fk_snc_curs foreign key(idcurs) references curs(idcurs) on delete cascade
+);
+
+create table student_parcurge_capitol (
+    idstudent int,
+    idcapitol int,
+    efectuat number default 0 constraint nn_efectuat_spc not null,
+    constraint pk_spc primary key(idstudent, idcapitol),
+    constraint fk_spc_student foreign key(idstudent) references student(idstudent) on delete cascade,
+    constraint fk_spc_capitol foreign key(idcapitol) references capitol(idcapitol) on delete cascade
+);
+
+-- insert values into tables
+create sequence seq_student start with 8 increment by 1;
+insert into student (idstudent, nume, prenume, email, datacreare) values (1, 'Chirila', 'Alexandru Matei', 'chirilaalexandrumatei@outlook.com', sysdate - 30);
+insert into student (idstudent, nume, prenume, email, datacreare) values (2, 'Costiniu', 'Gabriel', 'costiniugabriel@gmail.com', sysdate - 20);
+insert into student (idstudent, nume, prenume, email, datacreare) values (3, 'Timandi', 'Karina', 'timandiliviaandreea@hotmail.com', sysdate - 150);
+insert into student (idstudent, nume, prenume, email, datacreare) values (4, 'Stinga', 'Madalina', 'stingamadalina@gmail.com', sysdate - 10);
+insert into student (idstudent, nume, prenume, email, datacreare) values (5, 'Balitiu', 'Teodora', 'balitiuteodora@outlook.com', sysdate - 360);
+insert into student (idstudent, nume, prenume, email, datacreare) values (6, 'Stanasila', 'Ovidiu', 'stanasilaovidiu@protonmail.com', sysdate - 90);
+insert into student (idstudent, nume, prenume, email, datacreare) values (7, 'Banica', 'Raul Cezar', 'banicaraulcezar@gmail.com', sysdate - 60);
+select * from student;
+
+create sequence seq_curs start with 6 increment by 1;
+insert into curs (idcurs, nume, descriere, diploma, pret, limba) values (1, '100 days of code', 'Ia-o de la zero cu programarea in Python! Pe parcursul celor 100 de zile vei avea ceva de codat zilnic.', 1, 49.99, 'engleza');
+insert into curs (idcurs, nume, descriere, diploma, pret, limba) values (2, 'Gateste cu Sylvester Stallone', 'Esentialul in gatit, astazi predat de catre nimeni altul decat Sylvester Stallone!', 0, 69.99, 'engleza');
+insert into curs (idcurs, nume, descriere, diploma, pret, limba) values (3, 'Lectii de trompeta', 'Un instrument versatil, trompeta poate indulci orice coloana sonora.', 1, 39.99, 'romana');
+insert into curs (idcurs, nume, descriere, diploma, pret, limba) values (4, 'Filozofie si etica academica', null, 0, 29.99, 'romana');
+insert into curs (idcurs, nume, descriere, diploma, pret, limba) values (5, 'Chitara electrica 101', 'Totul despre chitara electrica. Invata sa canti rock, metal, whatever...', 1, 59.99, 'engleza');
+select * from curs;
+
+create sequence seq_card start with 11 increment by 1;
+insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (1, 1, 'CHIRILA ALEXANDRU MATEI', 374245455400126, to_date('01/05/2026', 'DD/MM/YYYY'), 123);
+insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (2, 2, 'COSTINIU GABRIEL', 378282246310005, to_date('01/05/2026', 'DD/MM/YYYY'), 423);
+insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (3, 3, 'TIMANDI KARINA', 6250941006528599, to_date('01/06/2026', 'DD/MM/YYYY'), 434);
+insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (4, 3, 'TIMANDI CRISTIAN', 6011000180331112, to_date('01/02/2026', 'DD/MM/YYYY'), 543);
+insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (5, 4, 'STINGA MADALINA', 6011000991300009, to_date('01/12/2026', 'DD/MM/YYYY'), 564);
+insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (6, 5, 'BALITIU TEODORA', 3566000020000410, to_date('01/02/2026', 'DD/MM/YYYY'), 954);
+insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (7, 6, 'STANASILA ANDREEA', 3530111333300000, to_date('01/09/2026', 'DD/MM/YYYY'), 309);
+insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (8, 6, 'STANASILA MARIAN', 5425233430109903, to_date('01/02/2026', 'DD/MM/YYYY'), 534);
+insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (9, 7, 'BANICA RAUL CEZAR', 2222420000001113, to_date('01/03/2026', 'DD/MM/YYYY'), 890);
+insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (10, 7, 'BANICA ADELINA', 5789432795823472, to_date('01/04/2026', 'DD/MM/YYYY'), 654);
+select * from card;
+
+insert into card_cumpara_curs (idcard, idcurs, datacumparare) values (1, 1, sysdate - 27);
+insert into card_cumpara_curs (idcard, idcurs, datacumparare) values (1, 4, sysdate - 23);
+insert into card_cumpara_curs (idcard, idcurs, datacumparare) values (2, 2, sysdate - 10);
+insert into card_cumpara_curs (idcard, idcurs, datacumparare) values (3, 3, sysdate - 70);
+insert into card_cumpara_curs (idcard, idcurs, datacumparare) values (4, 5, sysdate - 40);
+insert into card_cumpara_curs (idcard, idcurs, datacumparare) values (6, 1, sysdate - 150);
+insert into card_cumpara_curs (idcard, idcurs, datacumparare) values (6, 2, sysdate - 150);
+insert into card_cumpara_curs (idcard, idcurs, datacumparare) values (7, 3, sysdate - 85);
+insert into card_cumpara_curs (idcard, idcurs, datacumparare) values (8, 4, sysdate - 60);
+insert into card_cumpara_curs (idcard, idcurs, datacumparare) values (9, 4, sysdate - 50);
+insert into card_cumpara_curs (idcard, idcurs, datacumparare) values (10, 5, sysdate - 30);
+select * from card_cumpara_curs;
+
+create sequence seq_subiect start with 10 increment by 1;
+insert into subiect (idsubiect, nume, descriere) values (1, 'Programare', null);
+insert into subiect (idsubiect, nume, descriere) values (2, 'Python', null);
+insert into subiect (idsubiect, nume, descriere) values (3, 'Gatit', null);
+insert into subiect (idsubiect, nume, descriere) values (4, 'Instrumente', null);
+insert into subiect (idsubiect, nume, descriere) values (5, 'Filozofie', null);
+insert into subiect (idsubiect, nume, descriere) values (6, 'Academic', null);
+insert into subiect (idsubiect, nume, descriere) values (7, 'Chitara', null);
+insert into subiect (idsubiect, nume, descriere) values (8, 'Arama', null);
+insert into subiect (idsubiect, nume, descriere) values (9, 'Actorie', null);
+select * from subiect;
+
+insert into curs_are_subiect (idcurs, idsubiect) values (1, 1);
+insert into curs_are_subiect (idcurs, idsubiect) values (1, 2);
+insert into curs_are_subiect (idcurs, idsubiect) values (2, 3);
+insert into curs_are_subiect (idcurs, idsubiect) values (2, 9);
+insert into curs_are_subiect (idcurs, idsubiect) values (3, 3);
+insert into curs_are_subiect (idcurs, idsubiect) values (3, 8);
+insert into curs_are_subiect (idcurs, idsubiect) values (4, 5);
+insert into curs_are_subiect (idcurs, idsubiect) values (4, 6);
+insert into curs_are_subiect (idcurs, idsubiect) values (5, 4);
+insert into curs_are_subiect (idcurs, idsubiect) values (5, 7);
+select * from curs_are_subiect;
+
+create sequence seq_instructor start with 11 increment by 1;
+insert into instructor (idinstructor, nume, prenume, descriere) values (1, 'Blidariu', 'Mihnea', 'Mihnea Blidariu (n. 6 septembrie 1979, Bacau, Romania) este un muzician roman, membru al formatiei rock Luna Amara, din Cluj-Napoca. Interpreteaza vocal, la trompeta si la chitara.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (2, 'Stallone', 'Sylvester', 'Sylvester Enzio Stallone (n. 6 iulie 1946, New York City, New York, SUA) este un actor, regizor si scenarist american.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (3, 'Yu', 'Angela', 'I am Angela, I am a developer with a passion for teaching. I am the lead instructor at the London App Brewery, a leading Programming Bootcamp.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (4, 'Stoenescu', 'Constantin', 'Prof. Dr.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (5, 'Brancoveanu', 'Romulus', 'Prof. Dr.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (6, 'Patrunsu', 'Dorina Mihaela', 'Prof. Dr.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (7, 'Cioaba', 'Catalin', 'Prof. Dr.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (8, 'Malan', 'David', null);
+insert into instructor (idinstructor, nume, prenume, descriere) values (9, 'Botan', 'Andrei', null);
+insert into instructor (idinstructor, nume, prenume, descriere) values (10, 'Fagadar', 'Nick', 'Nick Fagadar este un muzician roman, membru al formatiei rock Luna Amara, din Cluj-Napoca. Interpreteaza vocal si la chitara.');
+select * from instructor;
+
+insert into instructor_preda_curs (idinstructor, idcurs) values (3, 1);
+insert into instructor_preda_curs (idinstructor, idcurs) values (8, 1);
+insert into instructor_preda_curs (idinstructor, idcurs) values (2, 2);
+insert into instructor_preda_curs (idinstructor, idcurs) values (1, 3);
+insert into instructor_preda_curs (idinstructor, idcurs) values (4, 4);
+insert into instructor_preda_curs (idinstructor, idcurs) values (5, 4);
+insert into instructor_preda_curs (idinstructor, idcurs) values (6, 4);
+insert into instructor_preda_curs (idinstructor, idcurs) values (7, 4);
+insert into instructor_preda_curs (idinstructor, idcurs) values (9, 5);
+insert into instructor_preda_curs (idinstructor, idcurs) values (10, 5);
+select * from instructor_preda_curs;
+
+create sequence seq_capitol start with 8 increment by 1;
+insert into capitol (idcapitol, idcurs, titlu, descriere, lungime) values (1, 1, 'Python introduction', null, 109.35);
+insert into capitol (idcapitol, idcurs, titlu, descriere, lungime) values (2, 1, 'Daily assignments', null, 65.21);
+insert into capitol (idcapitol, idcurs, titlu, descriere, lungime) values (3, 2, 'Salads with Adrian Balboa', null, 36.56);
+insert into capitol (idcapitol, idcurs, titlu, descriere, lungime) values (4, 2, 'Steak. Meats.', null, 36.56);
+insert into capitol (idcapitol, idcurs, titlu, descriere, lungime) values (5, 3, 'Ritmuri de hora in Sol Major', null, 20.15);
+insert into capitol (idcapitol, idcurs, titlu, descriere, lungime) values (6, 4, 'Filozofia in Inteligenta Artificiala', null, 300.15);
+insert into capitol (idcapitol, idcurs, titlu, descriere, lungime) values (7, 5, 'Stilul Grunge', null, 60.25);
+select * from capitol;
+
+create sequence seq_test start with 12 increment by 1;
+insert into test (idtest, idcapitol) values (1, 1);
+insert into test (idtest, idcapitol) values (2, 1);
+insert into test (idtest, idcapitol) values (3, 1);
+insert into test (idtest, idcapitol) values (4, 3);
+insert into test (idtest, idcapitol) values (5, 4);
+insert into test (idtest, idcapitol) values (6, 5);
+insert into test (idtest, idcapitol) values (7, 6);
+insert into test (idtest, idcapitol) values (8, 6);
+insert into test (idtest, idcapitol) values (9, 6);
+insert into test (idtest, idcapitol) values (10, 6);
+insert into test (idtest, idcapitol) values (11, 7);
+select * from test;
+
+create sequence seq_intrebare start with 23 increment by 1;
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (1, 1, 'What is a list?', 'Data collection');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (2, 1, 'What does print() do?', 'Prints contents to the STDOUT');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (3, 2, 'What is the difference between a list and a tuple?', 'Tuples are immutable, lists are not');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (4, 2, 'How to reverse a list using slices?', 'list = list[::-1]');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (5, 3, 'Is backtracking efficient?', 'No.');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (6, 3, 'What is the most optimal sorting complexity?' , 'O(n)');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (7, 4, 'Ceaser salad. Dressing?', 'Light dressing.');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (8, 4, 'Should you add red fruits to salad?', 'Yes (but only a couple slices).');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (9, 5, 'Should you cook steak beyond medium-rare?', 'Yes, but only certain cuts.');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (10, 5, 'Does lamb go well with wine?', 'The greeks have been doing it for centuries so of course yes.');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (11, 6, 'Ce hora este cea mai populara in Romania?', 'Hora Unirii.');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (13, 7, 'Are viata sfarsit?', 'In conceptia religiei, nu.');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (15, 8, 'Ce este moralitatea?', 'Depinde pe cine intrebi.');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (17, 9, 'Este inteligenta artificiala un domeniu ce reprezinta interes academic?', 'Da.');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (19, 10, 'Reprezinta inteligenta arificiala nesupervizata un pericol?', 'Nu (se cer detalii).');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (21, 11, 'Care a fost prima trupa considerata Grunge?', 'Green River');
+insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (22, 11, 'Care a fost cea mai populara trupa Grunge?', 'Nirvana');
+select * from intrebare;
+
+create sequence seq_tema start with 9 increment by 1;
+insert into tema (idtema, idcapitol, descriere, enunt) values (1, 1, null, 'Create a Python script that implements as many concepts as possible.');
+insert into tema (idtema, idcapitol, descriere, enunt) values (2, 2, null, 'Day 20: Nth Fibonacci number');
+insert into tema (idtema, idcapitol, descriere, enunt) values (3, 2, null, 'Day 40: First 100 prime numbers');
+insert into tema (idtema, idcapitol, descriere, enunt) values (4, 2, null, 'Day 60: Cash register');
+insert into tema (idtema, idcapitol, descriere, enunt) values (5, 2, null, 'Day 80: Bank administration');
+insert into tema (idtema, idcapitol, descriere, enunt) values (6, 2, null, 'Day 100: print("I did it!");');
+insert into tema (idtema, idcapitol, descriere, enunt) values (7, 5, null, 'Filmeaza ritmul tau');
+insert into tema (idtema, idcapitol, descriere, enunt) values (8, 7, null, 'Canta o melodie preferata din stilul grunge');
+select * from tema;
+
+insert into student_noteaza_curs (idstudent, idcurs) values (1, 1);
+insert into student_noteaza_curs (idstudent, idcurs) values (2, 2);
+insert into student_noteaza_curs (idstudent, idcurs) values (3, 3);
+insert into student_noteaza_curs (idstudent, idcurs) values (5, 1);
+insert into student_noteaza_curs (idstudent, idcurs) values (6, 3);
+insert into student_noteaza_curs (idstudent, idcurs) values (7, 4);
+insert into student_noteaza_curs (idstudent, idcurs, nota) values (1, 4, 8.00);
+insert into student_noteaza_curs (idstudent, idcurs, nota) values (3, 5, 9.00);
+insert into student_noteaza_curs (idstudent, idcurs, nota) values (5, 2, 10.00);
+insert into student_noteaza_curs (idstudent, idcurs, nota) values (6, 4, 7.50);
+insert into student_noteaza_curs (idstudent, idcurs, nota) values (7, 5, 3.00);
+select * from student_noteaza_curs;
+
+insert into student_doreste_curs (idstudent, idcurs) values (4, 1);
+insert into student_doreste_curs (idstudent, idcurs) values (4, 2);
+insert into student_doreste_curs (idstudent, idcurs) values (4, 3);
+insert into student_doreste_curs (idstudent, idcurs) values (1, 3);
+insert into student_doreste_curs (idstudent, idcurs) values (3, 4);
+insert into student_doreste_curs (idstudent, idcurs) values (5, 5);
+insert into student_doreste_curs (idstudent, idcurs) values (6, 1);
+insert into student_doreste_curs (idstudent, idcurs) values (6, 2);
+insert into student_doreste_curs (idstudent, idcurs) values (7, 1);
+insert into student_doreste_curs (idstudent, idcurs) values (7, 2);
+select * from student_doreste_curs;
+
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (1, 1, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (1, 2, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (1, 6, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (2, 3, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (2, 4, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (3, 5, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (3, 7, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (5, 1, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (5, 2, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (5, 3, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (5, 4, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (6, 5, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (6, 6, 0);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (7, 6, 1);
+insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (7, 7, 1);
+select * from student_parcurge_capitol;
+
+insert into student_rezolva_tema (idstudent, idtema, nota) values (1, 1, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (1, 2, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (1, 3, 10.00);
+insert into student_rezolva_tema (idstudent, idtema) values (1, 4);
+insert into student_rezolva_tema (idstudent, idtema) values (1, 5);
+insert into student_rezolva_tema (idstudent, idtema) values (1, 6);
+insert into student_rezolva_tema (idstudent, idtema) values (3, 7);
+insert into student_rezolva_tema (idstudent, idtema) values (3, 8);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (5, 1, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (5, 2, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (5, 3, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (5, 4, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (5, 5, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (5, 6, 10.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (6, 5, 9.00);
+insert into student_rezolva_tema (idstudent, idtema, nota) values (7, 8, 8.00);
+select * from student_rezolva_tema;
+
+insert into student_rezolva_test (idstudent, idtest, nota) values (1, 1, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (1, 2, 9.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (1, 3, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (1, 7, 7.00);
+insert into student_rezolva_test (idstudent, idtest) values (1, 8);
+insert into student_rezolva_test (idstudent, idtest) values (1, 9);
+insert into student_rezolva_test (idstudent, idtest) values (1, 10);
+insert into student_rezolva_test (idstudent, idtest) values (2, 4);
+insert into student_rezolva_test (idstudent, idtest) values (3, 6);
+insert into student_rezolva_test (idstudent, idtest) values (3, 11);
+insert into student_rezolva_test (idstudent, idtest, nota) values (5, 1, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (5, 2, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (5, 3, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (5, 4, 10.00);
+insert into student_rezolva_test (idstudent, idtest) values (5, 5);
+insert into student_rezolva_test (idstudent, idtest, nota) values (6, 6, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (6, 7, 6.00);
+insert into student_rezolva_test (idstudent, idtest) values (6, 8);
+insert into student_rezolva_test (idstudent, idtest) values (6, 9);
+insert into student_rezolva_test (idstudent, idtest) values (6, 10);
+insert into student_rezolva_test (idstudent, idtest, nota) values (7, 7, 9.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (7, 8, 8.50);
+insert into student_rezolva_test (idstudent, idtest, nota) values (7, 9, 9.40);
+insert into student_rezolva_test (idstudent, idtest, nota) values (7, 10, 10.00);
+insert into student_rezolva_test (idstudent, idtest, nota) values (7, 11, 10.00);
+select * from student_rezolva_test;
+
+-- exercitiul 6
+-- pentru un student al carui ID se da de la tastatura sa se afiseze cursurile pe care le-a cumparat
+-- pentru fiecare curs cumparat sa se enumere intrebarile din testele aferente fiecarui capitol al cursului, cat
+-- si raspunsurile corecte
+
+CREATE OR REPLACE PROCEDURE afisare_sarcini_de_lucru (v_id student.idstudent%type) as
+    TYPE date_curs IS RECORD (id curs.idcurs%type, nume curs.nume%type);
+    TYPE date_intrebare IS RECORD (enunt intrebare.enunt%type, raspuns intrebare.raspunscorect%type);
+    TYPE date_capitol IS RECORD (id capitol.idcapitol%type, titlu capitol.titlu%type);
+    TYPE t_curs IS TABLE OF date_curs INDEX BY PLS_INTEGER;
+    TYPE t_capitol IS TABLE OF date_capitol;
+    TYPE t_intrebare IS TABLE OF date_intrebare;
+    TYPE t_test IS VARRAY(100) of test.IDTEST%type; 
+    nume_curs t_curs;
+    titluri_capitol t_capitol := t_capitol(); 
+    intrebari t_intrebare := t_intrebare(); 
+    teste t_test := t_test();
+    v_idcurs curs.IDCURS%type;
+    nume_s student.nume%type;
+    datacreare_s student.datacreare%type;
+BEGIN
+    -- cursurile detinute de studentul dat ca parametru
+    select nume || ' ' || prenume, datacreare into nume_s, datacreare_s from student where idstudent = v_id;
+    DBMS_OUTPUT.PUT_LINE('Studentul ' || nume_s || ', care s-a intregistrat la data de ' || datacreare_s ||  ' a cumparat urmatoarele cursuri: ');
+    select cu.idcurs, cu.nume bulk COLLECT INTO nume_curs
+    from card ca, CARD_CUMPARA_CURS ccc, curs cu
+    where v_id = ca.IDSTUDENT and ccc.IDCARD = ca.IDCARD and cu.IDCURS = ccc.IDCURS;
+    for i in nume_curs.first..nume_curs.last LOOP
+        DBMS_OUTPUT.PUT_LINE('Cursul ' || nume_curs(i).nume || ' are urmatoarele capitole: ');
+        v_idcurs := nume_curs(i).id;
+        select idcapitol, titlu bulk collect into titluri_capitol
+        from capitol
+        where idcurs = v_idcurs;
+        for j in titluri_capitol.first..titluri_capitol.last loop 
+            DBMS_OUTPUT.PUT('    ' || titluri_capitol(j).titlu || ', care ');
+            -- ia testele aferente capitolului
+            select idtest bulk collect into teste
+            from TEST
+            where IDCAPITOL = titluri_capitol(j).id;
+            if teste.count != 0 then
+                dbms_output.PUT_LINE('are ' || teste.count || ' teste:');
+                for k in teste.first..teste.last LOOP
+                    -- ia intrebarile din test
+                    dbms_output.put_line('        Testul ' || k || ':');
+                    select enunt, raspunscorect bulk collect into intrebari
+                    from INTREBARE
+                    where idtest = teste(k);
+                    for l in intrebari.first..intrebari.last LOOP
+                    -- TODO see how to correct output
+                        DBMS_OUTPUT.PUT_line('            Intrebarea ' || l || ': ' || intrebari(l).enunt);
+                        DBMS_OUTPUT.PUT_LINE('            Raspunsul corect este: ' || intrebari(l).raspuns);
+
+                    end loop;
+                end loop;
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('nu are teste.');
+            end if;
+        end loop;
+    end loop;
+END afisare_sarcini_de_lucru;
+/
+
+BEGIN
+    afisare_sarcini_de_lucru(&cod_student);
+END;
+/
+
+-- exercitiul 7
+-- pentru fiecare student, sa se afiseze cardurile pe care si le-a inregistrat, si ce cursuri a cumparat cu fiecare
+
+
+CREATE OR REPLACE PROCEDURE afisare_cumparaturi as
+    id_s student.idstudent%type;
+    nume_s student.nume%type;
+    nume_c curs.nume%type;
+    pret_c curs.pret%type;
+    -- cursor explicit
+    cursor studenti is 
+        select idstudent, nume || ' ' || prenume
+        from student;
+
+    cursor cursuri (id_c card.idcard%type) IS
+        select idcurs from CARD_CUMPARA_CURS where idcard = id_c;
+BEGIN
+    open studenti;
+    loop
+        fetch studenti into id_s, nume_s;
+        exit when studenti%notfound;
+        dbms_output.put_line('Studentul ' || nume_s || ' are inregistrate urmatoarele carduri:');
+
+        -- cursor implicit
+        for i in (select idcard, detinator, numar from card where idstudent = id_s) LOOP
+            DBMS_OUTPUT.PUT_LINE('    ' || i.detinator || ', cu codul ' || i.numar || ', de pe care a cumparat urmatoarele cursuri:');
+            
+            for j in cursuri(i.idcard) LOOP
+                select nume, pret into nume_c, pret_c
+                from curs where idcurs = j.idcurs;
+                DBMS_OUTput.PUT_LINE('        ' || nume_c || ', care costa ' || pret_c || ' lei.');
+            end loop;
+
+        end loop;
+
+    end loop;
+
+END afisare_cumparaturi;
+/
+BEGIN
+    afisare_cumparaturi();
+END;
+/
+
+
+-- pentru un instructor al carui nume se da la tastatura sa se afiseze cate copii ale tuturor cursurilor pe care
+-- le preda au fost cumparate, pentru fiecare curs
+
+CREATE OR REPLACE FUNCTION numar_clienti (nume_instr instructor.nume%type) RETURN number AS
+    ret_nrvanzari number;
+    v_nrinst int;
+    v_idinst int;
+    
+    nu_exista_instructor EXCEPTION;
+    PRAGMA EXCEPTION_INIT (nu_exista_instructor, -20000);
+    mai_multi_instructori EXCEPTION;
+    PRAGMA EXCEPTION_INIT (mai_multi_instructori, -20001);
+BEGIN
+
+    select count(*) into v_nrinst from instructor where nume = nume_instr;
+    if v_nrinst > 1 then
+        raise_application_error(-20000, 'Sunt mai multi instructori cu numele dat!');
+    elsif v_nrinst < 1 then
+        raise_application_error(-20001, 'Nu exista instructori cu numele dat!');
+    end if;
+    
+    dbms_output.put_line('Despre instructorul ' || nume_instr || ' stim urmatoarele: ');
+    
+    for linie in (select c.nume, count(ccc.idcard) cumparari 
+    from instructor i, instructor_preda_curs ipc, card_cumpara_curs ccc, curs c
+    where i.nume = nume_instr and i.idinstructor = ipc.idinstructor and ipc.idcurs = ccc.idcurs and ipc.idcurs = c.idcurs
+    group by c.nume) loop
+        ret_nrvanzari := ret_nrvanzari + linie.cumparari;
+        dbms_output.put_line('    Cursul ' || linie.nume || ' are ' || linie.cumparari || ' vanzari.');
+    end loop;
+    
+    return ret_nrvanzari;
+END numar_clienti;
+/
+
+BEGIN
+    dbms_output.put_line(numar_clienti('Blidariu'));
+    dbms_output.put_line(numar_clienti('Blidari'));
+END;
+/
+
+-- exercitiul 9
+-- sa se creeze o procedura care, pentru un student al carui nume si prenume este dat, afiseaza progresul acestuia 
+-- la un curs al carui nume este dat. sa se verifice daca este inrolat la acel curs, iar pentru fiecare capitol al cursului
+-- sa se afiseze procentul de teme si teste pe care l-a facut
+
+CREATE OR REPLACE PROCEDURE medie_teste_capitol(p_numestudent student.nume%type, p_prenumestudent student.prenume%type, p_titlucapitol capitol.titlu%type) AS
+    v_aux number;
+    
+    v_numestudent student.nume%type;
+    v_prenumestudent student.prenume%type;
+    v_titlucapitol capitol.titlu%type;
+    v_medienote number(4,2);
+    
+BEGIN
+
+    select s.nume, s.prenume, c.titlu, avg(nvl(srtest.nota,0)) medie into v_numestudent, v_prenumestudent, v_titlucapitol, v_medienote
+    from student s, capitol c, student_parcurge_capitol spc, student_rezolva_test srtest, test
+    where lower(s.nume) = lower(p_numestudent) and lower(s.prenume) = lower(p_prenumestudent) and spc.idstudent = s.idstudent and spc.idcapitol = c.idcapitol
+    and srtest.idstudent = s.idstudent
+    and test.idtest = srtest.idtest
+    and test.idcapitol = c.idcapitol
+    and instr(lower(c.titlu), lower(p_titlucapitol), 1) > 0
+    group by s.nume, s.prenume, c.titlu;
+    
+    dbms_output.put_line('Studentul ' || v_numestudent || ' ' || v_prenumestudent || ' are media ' || v_medienote || ' la testele din capitolul ' || v_titlucapitol);
+EXCEPTION
+    when no_data_found then
+        select count(*) into v_aux
+        from student
+        where lower(student.nume) = lower(p_numestudent) and lower(student.prenume) = lower(p_prenumestudent);
+    
+        if v_aux = 0 then
+            dbms_output.put_line('Studentul cu numele si prenumele dat nu exista!');
+        end if;
+        
+        select count(distinct c.titlu) into v_aux
+        from student s, capitol c, student_parcurge_capitol spc, test
+        where spc.idstudent = s.idstudent and spc.idcapitol = c.idcapitol
+        and instr(lower(c.titlu), lower(p_titlucapitol), 1) > 0
+        and spc.efectuat = 1
+        and test.idcapitol = c.idcapitol
+        and lower(s.nume) = lower(p_numestudent) and lower(s.prenume) = lower(p_prenumestudent);
+        
+        if v_aux = 0 then
+            dbms_output.put_line('Nu s-a putut gasi un capitol cu subsirul dat!');
+        end if;
+    when too_many_rows then
+        select count(*) into v_aux
+        from student
+        where lower(student.nume) = lower(p_numestudent) and lower(student.prenume) = lower(p_prenumestudent);
+    
+        if v_aux > 1 then
+            dbms_output.put_line('Exista mai multi studenti cu numele si prenumele dat!');
+        end if;
+        
+        select count(distinct c.titlu) into v_aux
+        from student s, capitol c, student_parcurge_capitol spc, test
+        where spc.idstudent = s.idstudent and spc.idcapitol = c.idcapitol
+        and instr(lower(c.titlu), lower(p_titlucapitol), 1) > 0
+        and spc.efectuat = 1
+        and test.idcapitol = c.idcapitol
+        and lower(s.nume) = lower(p_numestudent) and lower(s.prenume) = lower(p_prenumestudent);
+        
+        if v_aux > 1 then
+            dbms_output.put_line('Exista mai multe capitole care au in componenta subsirul dat (fiti mai explicit)!');
+        end if;
+END medie_teste_capitol;
+/
+
+BEGIN
+    medie_teste_capitol('', '', ''); -- nu exista student & nu exista capitol
+    medie_teste_capitol('Chirila','Alexandru Matei','vertical'); -- nu exista capitol
+    -- pentru urmatoarea exceptie creez un student care sa aibe acelasi nume
+    insert into student (idstudent, nume, prenume, email, datacreare) values (100, 'Chirila', 'Alexandru Matei', 'chirilaalexandrumatei2@outlook.com', sysdate);
+    medie_teste_capitol('Chirila', 'Alexandru Matei', 'i'); -- mai multi studenti
+    delete from student where idstudent = 100;
+    medie_teste_capitol('Banica', 'Raul Cezar', 'i'); -- mai multe capitole
+    medie_teste_capitol('Chirila', 'Alexandru Matei', 'introduction'); -- ok
+END;
+/
+
+-- 10. doar adminul bazei de date poate modifica, insera sau sterge un curs din baza de date
+
+create or replace trigger t_admincurs
+    before insert or update or delete on curs
+declare
+begin
+
+    if (lower(sys.login_user) != 'sys') then
+        raise_application_error(-20900, 'Doar administratorul bazei de date poate efectua modificari pe tabela de cursuri!');
+    end if;
+end;
+/
+
+insert into curs (idcurs, nume, descriere, diploma, pret, limba) values (100, '100 days of code', 'Ia-o de la zero cu programarea in Python! Pe parcursul celor 100 de zile vei avea ceva de codat zilnic.', 1, 49.99, 'engleza');
+
+-- 11. Trigger care adauga linii in tabele asociative odata cu cumpararea unui curs 
+
+create or replace trigger t_cumparare
+    after insert on card_cumpara_curs
+    for each row
+declare
+    v_numarlinii int;
+    v_idstudent int;
+    v_idcapitol int;
+    type v_iduri is varray(10) of int;
+    v_idcapitole v_iduri;
+    v_idteste v_iduri;
+    v_idteme v_iduri;
+    
+begin
+    if inserting then 
+        select c.idstudent into v_idstudent
+        from card c
+        where c.idcard = :NEW.idcard;
+        
+        select idcapitol bulk collect into v_idcapitole
+        from capitol
+        where idcurs = :NEW.idcurs;
+        
+        for i in v_idcapitole.first..v_idcapitole.last loop
+            insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (v_idstudent, i, 0);
+            
+            select count(*) into v_numarlinii
+            from test where idcapitol = i;
+            
+            if (v_numarlinii > 0) then
+                select idtest bulk collect into v_idteste
+                from test
+                where idcapitol = i;
+            end if;
+            
+            select count(*) into v_numarlinii
+            from tema where idcapitol = i;
+            
+            if (v_numarlinii > 0) then
+                select idtema bulk collect into v_idteme
+                from tema
+                where idcapitol = i;
+            end if;
+        end loop;
+        
+        insert into student_noteaza_curs (idstudent, idcurs) values (v_idstudent, :NEW.idcurs);
+        
+        for i in v_idteste.first..v_idteste.last loop
+            insert into student_rezolva_test (idstudent, idtest) values (v_idstudent, i);
+        end loop;
+        
+        for i in v_idteme.first..v_idteme.last loop
+            insert into student_rezolva_tema (idstudent, idtema) values (v_idstudent, i);
+        end loop;
+    end if;
+end;
+/
+
+insert into student (idstudent, nume, prenume, email, datacreare) values (100, 'Damian', 'Andrei', 'damianandrei@gmail.com', sysdate);
+insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (100, 100, 'DAMIAN ANDREI', 2345890567828972, to_date('01/05/2026', 'DD/MM/YYYY'), 757);
+insert into card_cumpara_curs values (100, 1, sysdate);
+
+select * from card_cumpara_curs;
+select * from student_parcurge_capitol;
+select * from student_noteaza_curs;
+select * from student_rezolva_tema;
+select * from student_rezolva_test;
+
+-- 12. tabela care tine minte modificari produse in tabela
+
+create table modificari (
+    utilizator varchar2(50),
+    bazadedate varchar2(50),
+    modificare varchar2(50),
+    numeobiect varchar2(50),
+    dataefectuare date default sysdate
+);
+
+create or replace trigger t_modificari
+    after alter or create or drop on schema
+begin
+    insert into modificari (utilizator, bazadedate, modificare, numeobiect)
+    values (sys.login_user, sys.database_name, sys.sysevent, sys.dictionary_obj_name);
+end;
+/
+
+select * from modificari;
+
+-- 13
+
+create or replace package tema_sgbd as
+    PROCEDURE afisare_sarcini_de_lucru (v_id student.idstudent%type);
+    PROCEDURE afisare_cumparaturi;
+    FUNCTION numar_clienti (nume_instr instructor.nume%type) RETURN number;
+    PROCEDURE medie_teste_capitol(p_numestudent student.nume%type, p_prenumestudent student.prenume%type, p_titlucapitol capitol.titlu%type);
+end tema_sgbd;
+
+create or replace package body tema_sgbd as
+    PROCEDURE afisare_sarcini_de_lucru (v_id student.idstudent%type) as
+        TYPE date_curs IS RECORD (id curs.idcurs%type, nume curs.nume%type);
+        TYPE date_intrebare IS RECORD (enunt intrebare.enunt%type, raspuns intrebare.raspunscorect%type);
+        TYPE date_capitol IS RECORD (id capitol.idcapitol%type, titlu capitol.titlu%type);
+        TYPE t_curs IS TABLE OF date_curs INDEX BY PLS_INTEGER;
+        TYPE t_capitol IS TABLE OF date_capitol;
+        TYPE t_intrebare IS TABLE OF date_intrebare;
+        TYPE t_test IS VARRAY(100) of test.IDTEST%type; 
+        nume_curs t_curs;
+        titluri_capitol t_capitol := t_capitol(); 
+        intrebari t_intrebare := t_intrebare(); 
+        teste t_test := t_test();
+        v_idcurs curs.IDCURS%type;
+        nume_s student.nume%type;
+        datacreare_s student.datacreare%type;
+    BEGIN
+        -- cursurile detinute de studentul dat ca parametru
+        select nume || ' ' || prenume, datacreare into nume_s, datacreare_s from student where idstudent = v_id;
+        DBMS_OUTPUT.PUT_LINE('Studentul ' || nume_s || ', care s-a intregistrat la data de ' || datacreare_s ||  ' a cumparat urmatoarele cursuri: ');
+        select cu.idcurs, cu.nume bulk COLLECT INTO nume_curs
+        from card ca, CARD_CUMPARA_CURS ccc, curs cu
+        where v_id = ca.IDSTUDENT and ccc.IDCARD = ca.IDCARD and cu.IDCURS = ccc.IDCURS;
+        for i in nume_curs.first..nume_curs.last LOOP
+            DBMS_OUTPUT.PUT_LINE('Cursul ' || nume_curs(i).nume || ' are urmatoarele capitole: ');
+            v_idcurs := nume_curs(i).id;
+            select idcapitol, titlu bulk collect into titluri_capitol
+            from capitol
+            where idcurs = v_idcurs;
+            for j in titluri_capitol.first..titluri_capitol.last loop 
+                DBMS_OUTPUT.PUT('    ' || titluri_capitol(j).titlu || ', care ');
+                -- ia testele aferente capitolului
+                select idtest bulk collect into teste
+                from TEST
+                where IDCAPITOL = titluri_capitol(j).id;
+                if teste.count != 0 then
+                    dbms_output.PUT_LINE('are ' || teste.count || ' teste:');
+                    for k in teste.first..teste.last LOOP
+                        -- ia intrebarile din test
+                        dbms_output.put_line('        Testul ' || k || ':');
+                        select enunt, raspunscorect bulk collect into intrebari
+                        from INTREBARE
+                        where idtest = teste(k);
+                        for l in intrebari.first..intrebari.last LOOP
+                        -- TODO see how to correct output
+                            DBMS_OUTPUT.PUT_line('            Intrebarea ' || l || ': ' || intrebari(l).enunt);
+                            DBMS_OUTPUT.PUT_LINE('            Raspunsul corect este: ' || intrebari(l).raspuns);
+    
+                        end loop;
+                    end loop;
+                ELSE
+                    DBMS_OUTPUT.PUT_LINE('nu are teste.');
+                end if;
+            end loop;
+        end loop;
+    END afisare_sarcini_de_lucru;
+    
+    PROCEDURE afisare_cumparaturi as
+        id_s student.idstudent%type;
+        nume_s student.nume%type;
+        nume_c curs.nume%type;
+        pret_c curs.pret%type;
+        -- cursor explicit
+        cursor studenti is 
+            select idstudent, nume || ' ' || prenume
+            from student;
+    
+        cursor cursuri (id_c card.idcard%type) IS
+            select idcurs from CARD_CUMPARA_CURS where idcard = id_c;
+    BEGIN
+        open studenti;
+        loop
+            fetch studenti into id_s, nume_s;
+            exit when studenti%notfound;
+            dbms_output.put_line('Studentul ' || nume_s || ' are inregistrate urmatoarele carduri:');
+    
+            -- cursor implicit
+            for i in (select idcard, detinator, numar from card where idstudent = id_s) LOOP
+                DBMS_OUTPUT.PUT_LINE('    ' || i.detinator || ', cu codul ' || i.numar || ', de pe care a cumparat urmatoarele cursuri:');
+                
+                for j in cursuri(i.idcard) LOOP
+                    select nume, pret into nume_c, pret_c
+                    from curs where idcurs = j.idcurs;
+                    DBMS_OUTput.PUT_LINE('        ' || nume_c || ', care costa ' || pret_c || ' lei.');
+                end loop;
+    
+            end loop;
+    
+        end loop;
+    
+    END afisare_cumparaturi;
+    
+    FUNCTION numar_clienti (nume_instr instructor.nume%type) RETURN number AS
+        ret_nrvanzari number;
+        v_nrinst int;
+        v_idinst int;
+        
+        nu_exista_instructor EXCEPTION;
+        PRAGMA EXCEPTION_INIT (nu_exista_instructor, -20000);
+        mai_multi_instructori EXCEPTION;
+        PRAGMA EXCEPTION_INIT (mai_multi_instructori, -20001);
+    BEGIN
+    
+        select count(*) into v_nrinst from instructor where nume = nume_instr;
+        if v_nrinst > 1 then
+            raise_application_error(-20000, 'Sunt mai multi instructori cu numele dat!');
+        elsif v_nrinst < 1 then
+            raise_application_error(-20001, 'Nu exista instructori cu numele dat!');
+        end if;
+        
+        dbms_output.put_line('Despre instructorul ' || nume_instr || ' stim urmatoarele: ');
+        
+        for linie in (select c.nume, count(ccc.idcard) cumparari 
+        from instructor i, instructor_preda_curs ipc, card_cumpara_curs ccc, curs c
+        where i.nume = nume_instr and i.idinstructor = ipc.idinstructor and ipc.idcurs = ccc.idcurs and ipc.idcurs = c.idcurs
+        group by c.nume) loop
+            ret_nrvanzari := ret_nrvanzari + linie.cumparari;
+            dbms_output.put_line('    Cursul ' || linie.nume || ' are ' || linie.cumparari || ' vanzari.');
+        end loop;
+        
+        return ret_nrvanzari;
+    END numar_clienti;
+    
+    PROCEDURE medie_teste_capitol(p_numestudent student.nume%type, p_prenumestudent student.prenume%type, p_titlucapitol capitol.titlu%type) AS
+        v_aux number;
+        
+        v_numestudent student.nume%type;
+        v_prenumestudent student.prenume%type;
+        v_titlucapitol capitol.titlu%type;
+        v_medienote number(4,2);
+        
+    BEGIN
+    
+        select s.nume, s.prenume, c.titlu, avg(nvl(srtest.nota,0)) medie into v_numestudent, v_prenumestudent, v_titlucapitol, v_medienote
+        from student s, capitol c, student_parcurge_capitol spc, student_rezolva_test srtest, test
+        where lower(s.nume) = lower(p_numestudent) and lower(s.prenume) = lower(p_prenumestudent) and spc.idstudent = s.idstudent and spc.idcapitol = c.idcapitol
+        and srtest.idstudent = s.idstudent
+        and test.idtest = srtest.idtest
+        and test.idcapitol = c.idcapitol
+        and instr(lower(c.titlu), lower(p_titlucapitol), 1) > 0
+        group by s.nume, s.prenume, c.titlu;
+        
+        dbms_output.put_line('Studentul ' || v_numestudent || ' ' || v_prenumestudent || ' are media ' || v_medienote || ' la testele din capitolul ' || v_titlucapitol);
+    EXCEPTION
+        when no_data_found then
+            select count(*) into v_aux
+            from student
+            where lower(student.nume) = lower(p_numestudent) and lower(student.prenume) = lower(p_prenumestudent);
+        
+            if v_aux = 0 then
+                dbms_output.put_line('Studentul cu numele si prenumele dat nu exista!');
+            end if;
+            
+            select count(distinct c.titlu) into v_aux
+            from student s, capitol c, student_parcurge_capitol spc, test
+            where spc.idstudent = s.idstudent and spc.idcapitol = c.idcapitol
+            and instr(lower(c.titlu), lower(p_titlucapitol), 1) > 0
+            and spc.efectuat = 1
+            and test.idcapitol = c.idcapitol
+            and lower(s.nume) = lower(p_numestudent) and lower(s.prenume) = lower(p_prenumestudent);
+            
+            if v_aux = 0 then
+                dbms_output.put_line('Nu s-a putut gasi un capitol cu subsirul dat!');
+            end if;
+        when too_many_rows then
+            select count(*) into v_aux
+            from student
+            where lower(student.nume) = lower(p_numestudent) and lower(student.prenume) = lower(p_prenumestudent);
+        
+            if v_aux > 1 then
+                dbms_output.put_line('Exista mai multi studenti cu numele si prenumele dat!');
+            end if;
+            
+            select count(distinct c.titlu) into v_aux
+            from student s, capitol c, student_parcurge_capitol spc, test
+            where spc.idstudent = s.idstudent and spc.idcapitol = c.idcapitol
+            and instr(lower(c.titlu), lower(p_titlucapitol), 1) > 0
+            and spc.efectuat = 1
+            and test.idcapitol = c.idcapitol
+            and lower(s.nume) = lower(p_numestudent) and lower(s.prenume) = lower(p_prenumestudent);
+            
+            if v_aux > 1 then
+                dbms_output.put_line('Exista mai multe capitole care au in componenta subsirul dat (fiti mai explicit)!');
+            end if;
+    END medie_teste_capitol;
+END tema_sgbd;
+/
+
+BEGIN
+    tema_sgbd.afisare_sarcini_de_lucru(&cod_student);
+    tema_sgbd.afisare_cumparaturi();
+    dbms_output.put_line(tema_sgbd.numar_clienti('Blidariu'));
+    tema_sgbd.medie_teste_capitol('Chirila', 'Alexandru Matei', 'introduction'); 
+END;
+/
+
