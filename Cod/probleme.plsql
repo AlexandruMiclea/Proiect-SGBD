@@ -1,21 +1,16 @@
-exec dbms_output.enable(NULL);
-SET SERVERoutput on format wrapped;
-
-
 -- exercitiul 6
 -- pentru un student al carui ID se da de la tastatura sa se afiseze cursurile pe care le-a cumparat
 -- pentru fiecare curs cumparat sa se enumere intrebarile din testele aferente fiecarui capitol al cursului, cat
 -- si raspunsurile corecte
-select * from student;
 
-CREATE OR REPLACE PROCEDURE afisare_cursuri (v_id student.idstudent%type) as
+CREATE OR REPLACE PROCEDURE afisare_sarcini_de_lucru (v_id student.idstudent%type) as
     TYPE date_curs IS RECORD (id curs.idcurs%type, nume curs.nume%type);
     TYPE date_intrebare IS RECORD (enunt intrebare.enunt%type, raspuns intrebare.raspunscorect%type);
     TYPE date_capitol IS RECORD (id capitol.idcapitol%type, titlu capitol.titlu%type);
     TYPE t_curs IS TABLE OF date_curs INDEX BY PLS_INTEGER;
     TYPE t_capitol IS TABLE OF date_capitol;
     TYPE t_intrebare IS TABLE OF date_intrebare;
-    TYPE t_test IS VARRAY(6) of test.IDTEST%type; -- 6 este scos din neant, teoretic nu pot avea mai mult de 6 teste la un capitol
+    TYPE t_test IS VARRAY(100) of test.IDTEST%type; 
     nume_curs t_curs;
     titluri_capitol t_capitol := t_capitol(); 
     intrebari t_intrebare := t_intrebare(); 
@@ -43,7 +38,7 @@ BEGIN
             from TEST
             where IDCAPITOL = titluri_capitol(j).id;
             if teste.count != 0 then
-                dbms_output.PUT_LINE(teste.count || ' teste:');
+                dbms_output.PUT_LINE('are ' || teste.count || ' teste:');
                 for k in teste.first..teste.last LOOP
                     -- ia intrebarile din test
                     dbms_output.put_line('        Testul ' || k || ':');
@@ -53,7 +48,7 @@ BEGIN
                     for l in intrebari.first..intrebari.last LOOP
                     -- TODO see how to correct output
                         DBMS_OUTPUT.PUT_line('            Intrebarea ' || l || ': ' || intrebari(l).enunt);
-                        DBMS_OUTPUT.PUT_LINE('            Raspunsul corect este ' || intrebari(l).raspuns);
+                        DBMS_OUTPUT.PUT_LINE('            Raspunsul corect este: ' || intrebari(l).raspuns);
 
                     end loop;
                 end loop;
@@ -62,11 +57,11 @@ BEGIN
             end if;
         end loop;
     end loop;
-END afisare_cursuri;
+END afisare_sarcini_de_lucru;
 /
 
 BEGIN
-    afisare_cursuri(&cod_student);
+    afisare_sarcini_de_lucru(&cod_student);
 END;
 /
 
@@ -114,16 +109,13 @@ BEGIN
 END;
 /
 
+-- todo returneaza un record ca sa poti afisa fiecare curs si cati cumparatori ai
+-- pentru un instructor al carui nume se da la tastatura sa se afiseze cate copii ale tuturor cursurilor pe care
+-- le preda au fost cumparate, pentru fiecare curs
 
--- exercitiul 8 -- TODO add exceptions
--- pentru un instructor al carui nume se da la tastatura sa se afiseze cate copii ale tuturor cursurilor pe care le preda au fost cumparate?
 
-select count(*)
-from instructor i, instructor_preda_curs ipc, card_cumpara_curs ccc
-where i.nume = 'Stoenescu' and i.idinstructor = ipc.idinstructor and ipc.idcurs = ccc.idcurs;
-
-CREATE OR REPLACE FUNCTION numar_clienti (nume_instr instructor.nume%type) RETURN int AS
-    ret_nrcl int;
+CREATE OR REPLACE FUNCTION numar_clienti (nume_instr instructor.nume%type) RETURN number AS
+    ret_nrvanzari number;
     v_nrinst int;
     v_idinst int;
     
@@ -140,50 +132,225 @@ BEGIN
         raise_application_error(-20001, 'Nu exista instructori cu numele dat!');
     end if;
     
-    select count(*) into ret_nrcl
-    from instructor i, instructor_preda_curs ipc, card_cumpara_curs ccc
-    where i.nume = nume_instr and i.idinstructor = ipc.idinstructor and ipc.idcurs = ccc.idcurs;
+    dbms_output.put_line('Despre instructorul ' || nume_instr || ' stim urmatoarele: ');
     
-    return ret_nrcl;
+    for linie in (select c.nume, count(ccc.idcard) cumparari 
+    from instructor i, instructor_preda_curs ipc, card_cumpara_curs ccc, curs c
+    where i.nume = nume_instr and i.idinstructor = ipc.idinstructor and ipc.idcurs = ccc.idcurs and ipc.idcurs = c.idcurs
+    group by c.nume) loop
+        ret_nrvanzari := ret_nrvanzari + linie.cumparari;
+        dbms_output.put_line('    Cursul ' || linie.nume || ' are ' || linie.cumparari || ' vanzari.');
+    end loop;
+    
+    return ret_nrvanzari;
 END numar_clienti;
 /
 
 BEGIN
     dbms_output.put_line(numar_clienti('Blidariu'));
+    dbms_output.put_line(numar_clienti('Blidariu'));
+    dbms_output.put_line(numar_clienti('Blidari'));
 END;
 /
 
 -- exercitiul 9
--- sa se creeze o procedura care, pentru fiecare student, afiseaza progresul acestuia la cursurile la care este inrolat
--- mai exact, pentru fiecare capitol efectuat, sa se afiseze daca studentul si-a facut testele si temele, in cazul in care acestea exista,
--- si nota pe care acesta a obtinut-o.
-CREATE OR REPLACE PROCEDURE progres_studenti AS
-    ret_nrcl int;
-    v_nrinst int;
-    v_idinst int;
+-- sa se creeze o procedura care, pentru un student al carui nume si prenume este dat, afiseaza progresul acestuia 
+-- la un curs al carui nume este dat. sa se verifice daca este inrolat la acel curs, iar pentru fiecare capitol al cursului
+-- sa se afiseze procentul de teme si teste pe care l-a facut
+
+
+
+-- pentru too many rows / no rows am un parametru care e un subsir al capitolului cautat.
+-- 'in' imi va intoarce too many rows, 'ceva' imi va intoarce no rows found
+
+-- student student rezolva test & tema, student_parcurge_capitol, capitol
+CREATE OR REPLACE PROCEDURE medie_teste_capitol(p_numestudent student.nume%type, p_prenumestudent student.prenume%type, p_titlucapitol capitol.titlu%type) AS
+    v_aux number;
     
-    nu_exista_instructor EXCEPTION;
-    PRAGMA EXCEPTION_INIT (nu_exista_instructor, -20000);
-    mai_multi_instructori EXCEPTION;
-    PRAGMA EXCEPTION_INIT (mai_multi_instructori, -20001);
+    v_numestudent student.nume%type;
+    v_prenumestudent student.prenume%type;
+    v_titlucapitol capitol.titlu%type;
+    v_medienote number(4,2);
+    
 BEGIN
 
-    select count(*) into v_nrinst from instructor where nume = nume_instr;
-    if v_nrinst > 1 then
-        raise_application_error(-20000, 'Sunt mai multi instructori cu numele dat!');
-    elsif v_nrinst < 1 then
-        raise_application_error(-20001, 'Nu exista instructori cu numele dat!');
-    end if;
+    select s.nume, s.prenume, c.titlu, avg(nvl(srtest.nota,0)) medie into v_numestudent, v_prenumestudent, v_titlucapitol, v_medienote
+    from student s, capitol c, student_parcurge_capitol spc, student_rezolva_test srtest, test
+    where lower(s.nume) = lower(p_numestudent) and lower(s.prenume) = lower(p_prenumestudent) and spc.idstudent = s.idstudent and spc.idcapitol = c.idcapitol
+    and srtest.idstudent = s.idstudent
+    and test.idtest = srtest.idtest
+    and test.idcapitol = c.idcapitol
+    and instr(lower(c.titlu), lower(p_titlucapitol), 1) > 0
+    group by s.nume, s.prenume, c.titlu;
     
-    select count(*) into ret_nrcl
-    from instructor i, instructor_preda_curs ipc, card_cumpara_curs ccc
-    where i.nume = nume_instr and i.idinstructor = ipc.idinstructor and ipc.idcurs = ccc.idcurs;
+    dbms_output.put_line('Studentul ' || v_numestudent || ' ' || v_prenumestudent || ' are media ' || v_medienote || ' la testele din capitolul ' || v_titlucapitol);
+EXCEPTION
+    when no_data_found then
+        select count(*) into v_aux
+        from student
+        where lower(student.nume) = lower(p_numestudent) and lower(student.prenume) = lower(p_prenumestudent);
     
-    return ret_nrcl;
-END progres_studenti;
+        if v_aux = 0 then
+            dbms_output.put_line('Studentul cu numele si prenumele dat nu exista!');
+        end if;
+        
+        select count(distinct c.titlu) into v_aux
+        from student s, capitol c, student_parcurge_capitol spc, test
+        where spc.idstudent = s.idstudent and spc.idcapitol = c.idcapitol
+        and instr(lower(c.titlu), lower(p_titlucapitol), 1) > 0
+        and spc.efectuat = 1
+        and test.idcapitol = c.idcapitol
+        and lower(s.nume) = lower(p_numestudent) and lower(s.prenume) = lower(p_prenumestudent);
+        
+        if v_aux = 0 then
+            dbms_output.put_line('Nu s-a putut gasi un capitol cu subsirul dat!');
+        end if;
+    when too_many_rows then
+        select count(*) into v_aux
+        from student
+        where lower(student.nume) = lower(p_numestudent) and lower(student.prenume) = lower(p_prenumestudent);
+    
+        if v_aux > 1 then
+            dbms_output.put_line('Exista mai multi studenti cu numele si prenumele dat!');
+        end if;
+        
+        select count(distinct c.titlu) into v_aux
+        from student s, capitol c, student_parcurge_capitol spc, test
+        where spc.idstudent = s.idstudent and spc.idcapitol = c.idcapitol
+        and instr(lower(c.titlu), lower(p_titlucapitol), 1) > 0
+        and spc.efectuat = 1
+        and test.idcapitol = c.idcapitol
+        and lower(s.nume) = lower(p_numestudent) and lower(s.prenume) = lower(p_prenumestudent);
+        
+        if v_aux > 1 then
+            dbms_output.put_line('Exista mai multe capitole care au in componenta subsirul dat (fiti mai explicit)!');
+        end if;
+END medie_teste_capitol;
 /
 
 BEGIN
-    dbms_output.put_line(numar_clienti('Blidariu'));
+    medie_teste_capitol('', '', ''); -- nu exista student & nu exista capitol
+    medie_teste_capitol('Chirila','Alexandru Matei','vertical'); -- nu exista capitol
+    -- pentru urmatoarea exceptie creez un student care sa aibe acelasi nume
+    insert into student (idstudent, nume, prenume, email, datacreare) values (100, 'Chirila', 'Alexandru Matei', 'chirilaalexandrumatei2@outlook.com', sysdate);
+    medie_teste_capitol('Chirila', 'Alexandru Matei', 'i'); -- mai multi studenti
+    delete from student where idstudent = 100;
+    medie_teste_capitol('Banica', 'Raul Cezar', 'i'); -- mai multe capitole
+    medie_teste_capitol('Chirila', 'Alexandru Matei', 'introduction'); -- ok
 END;
+/
+
+-- trigger lmd comanda
+-- trigger lmd linie
+-- trigger ldd
+
+-- inserarea la nivel de linie -> for each row
+
+-- 10. doar adminul bazei de date poate modifica, insera sau sterge un curs din baza de date -- TODO cauta ceva mai destept
+
+create or replace trigger t_
+    before insert or update or delete on curs
+declare
+begin
+
+    if (lower(sys.login_user) != 'sys') then
+        raise_application_error(-20900, 'Doar administratorul bazei de date poate efectua modificari pe tabela de cursuri!');
+    end if;
+end;
+/
+
+-- 11. Trigger care adauga linii in tabele asociative odata cu cumpararea unui curs 
+
+create or replace trigger t_cumparare
+    after insert on card_cumpara_curs
+    for each row
+declare
+    v_numarlinii int;
+    v_idstudent int;
+    v_idcapitol int;
+    type v_iduri is varray(10) of int;
+    v_idcapitole v_iduri;
+    v_idteste v_iduri;
+    v_idteme v_iduri;
+    
+begin
+    if inserting then 
+        select c.idstudent into v_idstudent
+        from card c
+        where c.idcard = :NEW.idcard;
+        
+        select idcapitol bulk collect into v_idcapitole
+        from capitol
+        where idcurs = :NEW.idcurs;
+        
+        for i in v_idcapitole.first..v_idcapitole.last loop
+            insert into student_parcurge_capitol (idstudent, idcapitol, efectuat) values (v_idstudent, i, 0);
+            
+            select count(*) into v_numarlinii
+            from test where idcapitol = i;
+            
+            if (v_numarlinii > 0) then
+                select idtest bulk collect into v_idteste
+                from test
+                where idcapitol = i;
+            end if;
+            
+            select count(*) into v_numarlinii
+            from tema where idcapitol = i;
+            
+            if (v_numarlinii > 0) then
+                select idtema bulk collect into v_idteme
+                from tema
+                where idcapitol = i;
+            end if;
+        end loop;
+        
+        insert into student_noteaza_curs (idstudent, idcurs) values (v_idstudent, :NEW.idcurs);
+        
+        for i in v_idteste.first..v_idteste.last loop
+            insert into student_rezolva_test (idstudent, idtest) values (v_idstudent, i);
+        end loop;
+        
+        for i in v_idteme.first..v_idteme.last loop
+            insert into student_rezolva_tema (idstudent, idtema) values (v_idstudent, i);
+        end loop;
+    end if;
+end;
+/
+
+insert into student (idstudent, nume, prenume, email, datacreare) values (100, 'Damian', 'Andrei', 'damianandrei@gmail.com', sysdate);
+insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (100, 100, 'DAMIAN ANDREI', 2345890567828972, to_date('01/05/2026', 'DD/MM/YYYY'), 757);
+insert into card_cumpara_curs values (100, 1, sysdate);
+
+select * from card_cumpara_curs;
+select * from student_parcurge_capitol;
+select * from student_noteaza_curs;
+select * from student_rezolva_tema;
+select * from student_rezolva_test;
+
+delete from student where idstudent = 100;
+delete from card where idcard = 100;
+
+
+-- 12. tabela care tine minte modificari produse in tabela
+
+create table modificari (
+    utilizator varchar2(50),
+    bazadedate varchar2(50),
+    modificare varchar2(50),
+    numeobiect varchar2(50),
+    dataefectuare date default sysdate
+);
+
+drop table modificari;
+drop trigger t_modificari;
+
+select * from modificari;
+
+create or replace trigger t_modificari
+    after alter or create or drop on schema
+begin
+    insert into modificari (utilizator, bazadedate, modificare, numeobiect)
+    values (sys.login_user, sys.database_name, sys.sysevent, sys.dictionary_obj_name);
+end;
 /

@@ -152,7 +152,7 @@ create table student_parcurge_capitol (
 );
 
 -- insert values into tables
-
+create sequence seq_student start with 8 increment by 1;
 insert into student (idstudent, nume, prenume, email, datacreare) values (1, 'Chirila', 'Alexandru Matei', 'chirilaalexandrumatei@outlook.com', sysdate - 30);
 insert into student (idstudent, nume, prenume, email, datacreare) values (2, 'Costiniu', 'Gabriel', 'costiniugabriel@gmail.com', sysdate - 20);
 insert into student (idstudent, nume, prenume, email, datacreare) values (3, 'Timandi', 'Karina', 'timandiliviaandreea@hotmail.com', sysdate - 150);
@@ -162,6 +162,7 @@ insert into student (idstudent, nume, prenume, email, datacreare) values (6, 'St
 insert into student (idstudent, nume, prenume, email, datacreare) values (7, 'Banica', 'Raul Cezar', 'banicaraulcezar@gmail.com', sysdate - 60);
 select * from student;
 
+create sequence seq_curs start with 6 increment by 1;
 insert into curs (idcurs, nume, descriere, diploma, pret, limba) values (1, '100 days of code', 'Ia-o de la zero cu programarea in Python! Pe parcursul celor 100 de zile vei avea ceva de codat zilnic.', 1, 49.99, 'engleza');
 insert into curs (idcurs, nume, descriere, diploma, pret, limba) values (2, 'Gateste cu Sylvester Stallone', 'Esentialul in gatit, astazi predat de catre nimeni altul decat Sylvester Stallone!', 0, 69.99, 'engleza');
 insert into curs (idcurs, nume, descriere, diploma, pret, limba) values (3, 'Lectii de trompeta', 'Un instrument versatil, trompeta poate indulci orice coloana sonora.', 1, 39.99, 'romana');
@@ -169,6 +170,7 @@ insert into curs (idcurs, nume, descriere, diploma, pret, limba) values (4, 'Fil
 insert into curs (idcurs, nume, descriere, diploma, pret, limba) values (5, 'Chitara electrica 101', 'Totul despre chitara electrica. Invata sa canti rock, metal, whatever...', 1, 59.99, 'engleza');
 select * from curs;
 
+create sequence seq_card start with 11 increment by 1;
 insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (1, 1, 'CHIRILA ALEXANDRU MATEI', 374245455400126, to_date('01/05/2026', 'DD/MM/YYYY'), 123);
 insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (2, 2, 'COSTINIU GABRIEL', 378282246310005, to_date('01/05/2026', 'DD/MM/YYYY'), 423);
 insert into card (idcard, idstudent, detinator, numar, dataexpirare, cif) values (3, 3, 'TIMANDI KARINA', 6250941006528599, to_date('01/06/2026', 'DD/MM/YYYY'), 434);
@@ -194,6 +196,7 @@ insert into card_cumpara_curs (idcard, idcurs, datacumparare) values (9, 4, sysd
 insert into card_cumpara_curs (idcard, idcurs, datacumparare) values (10, 5, sysdate - 30);
 select * from card_cumpara_curs;
 
+create sequence seq_subiect start with 10 increment by 1;
 insert into subiect (idsubiect, nume, descriere) values (1, 'Programare', null);
 insert into subiect (idsubiect, nume, descriere) values (2, 'Python', null);
 insert into subiect (idsubiect, nume, descriere) values (3, 'Gatit', null);
@@ -217,16 +220,17 @@ insert into curs_are_subiect (idcurs, idsubiect) values (5, 4);
 insert into curs_are_subiect (idcurs, idsubiect) values (5, 7);
 select * from curs_are_subiect;
 
-insert into instructor (idinstructor, nume, prenume, descriere) values (1, 'Blidariu', 'Mihnea', null);
-insert into instructor (idinstructor, nume, prenume, descriere) values (2, 'Stallone', 'Sylvester', null);
-insert into instructor (idinstructor, nume, prenume, descriere) values (3, 'Yu', 'Angela', null);
-insert into instructor (idinstructor, nume, prenume, descriere) values (4, 'Stoenescu', 'Constantin', null);
-insert into instructor (idinstructor, nume, prenume, descriere) values (5, 'Brancoveanu', 'Romulus', null);
-insert into instructor (idinstructor, nume, prenume, descriere) values (6, 'Patrunsu', 'Dorina Mihaela', null);
-insert into instructor (idinstructor, nume, prenume, descriere) values (7, 'Cioaba', 'Catalin', null);
+create sequence seq_instructor start with 11 increment by 1;
+insert into instructor (idinstructor, nume, prenume, descriere) values (1, 'Blidariu', 'Mihnea', 'Mihnea Blidariu (n. 6 septembrie 1979, Bac?u, România) este un muzician român, membru al forma?iei rock Luna Amar?, din Cluj-Napoca. Interpreteaz? vocal, la trompet? ?i la chitar?.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (2, 'Stallone', 'Sylvester', 'Sylvester Enzio Stallone (n. 6 iulie 1946, New York City, New York, SUA) este un actor, regizor ?i scenarist american.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (3, 'Yu', 'Angela', 'I am Angela, I am a developer with a passion for teaching. I am the lead instructor at the London App Brewery, a leading Programming Bootcamp.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (4, 'Stoenescu', 'Constantin', 'Prof. Dr.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (5, 'Brancoveanu', 'Romulus', 'Prof. Dr.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (6, 'Patrunsu', 'Dorina Mihaela', 'Prof. Dr.');
+insert into instructor (idinstructor, nume, prenume, descriere) values (7, 'Cioaba', 'Catalin', 'Prof. Dr.');
 insert into instructor (idinstructor, nume, prenume, descriere) values (8, 'Malan', 'David', null);
 insert into instructor (idinstructor, nume, prenume, descriere) values (9, 'Botan', 'Andrei', null);
-insert into instructor (idinstructor, nume, prenume, descriere) values (10, 'Fagadar', 'Nick', null);
+insert into instructor (idinstructor, nume, prenume, descriere) values (10, 'Fagadar', 'Nick', 'Nick Fagadar este un muzician român, membru al forma?iei rock Luna Amar?, din Cluj-Napoca. Interpreteaz? vocal ?i la chitar?.');
 select * from instructor;
 
 insert into instructor_preda_curs (idinstructor, idcurs) values (3, 1);
@@ -241,6 +245,7 @@ insert into instructor_preda_curs (idinstructor, idcurs) values (9, 5);
 insert into instructor_preda_curs (idinstructor, idcurs) values (10, 5);
 select * from instructor_preda_curs;
 
+create sequence seq_capitol start with 8 increment by 1;
 insert into capitol (idcapitol, idcurs, titlu, descriere, lungime) values (1, 1, 'Python introduction', null, 109.35);
 insert into capitol (idcapitol, idcurs, titlu, descriere, lungime) values (2, 1, 'Daily assignments', null, 65.21);
 insert into capitol (idcapitol, idcurs, titlu, descriere, lungime) values (3, 2, 'Salads with Adrian Balboa', null, 36.56);
@@ -250,6 +255,7 @@ insert into capitol (idcapitol, idcurs, titlu, descriere, lungime) values (6, 4,
 insert into capitol (idcapitol, idcurs, titlu, descriere, lungime) values (7, 5, 'Stilul Grunge', null, 60.25);
 select * from capitol;
 
+create sequence seq_test start with 12 increment by 1;
 insert into test (idtest, idcapitol) values (1, 1);
 insert into test (idtest, idcapitol) values (2, 1);
 insert into test (idtest, idcapitol) values (3, 1);
@@ -263,6 +269,7 @@ insert into test (idtest, idcapitol) values (10, 6);
 insert into test (idtest, idcapitol) values (11, 7);
 select * from test;
 
+create sequence seq_intrebare start with 23 increment by 1;
 insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (1, 1, 'What is a list?', 'Data collection');
 insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (2, 1, 'What does print() do?', 'Prints contents to the STDOUT');
 insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (3, 2, 'What is the difference between a list and a tuple?', 'Tuples are immutable, lists are not');
@@ -282,6 +289,7 @@ insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (21, 11
 insert into intrebare (idintrebare, idtest, enunt, raspunscorect) values (22, 11, 'Care a fost cea mai populara trupa Grunge?', 'Nirvana');
 select * from intrebare;
 
+create sequence seq_tema start with 9 increment by 1;
 insert into tema (idtema, idcapitol, descriere, enunt) values (1, 1, null, 'Create a Python script that implements as many concepts as possible.');
 insert into tema (idtema, idcapitol, descriere, enunt) values (2, 2, null, 'Day 20: Nth Fibonacci number');
 insert into tema (idtema, idcapitol, descriere, enunt) values (3, 2, null, 'Day 40: First 100 prime numbers');
